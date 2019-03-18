@@ -10,6 +10,11 @@ test_pos_path = 'movie-review-HW2/aclImdb/test/pos'
 
 
 def single_file(file_to_write, file_path):
+    """
+    This function opens each text file, makes all of the text lower case,
+    removes punctuation characters and HTML tags, and outputs a 'master file'
+    with all of the text per class
+    """
     with open(file_to_write, "w") as outfile:
         for filename in glob.glob(os.path.join(file_path, '*.txt')):
             with open(filename, 'r', errors='ignore') as f:
