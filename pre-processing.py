@@ -44,16 +44,29 @@ def make_train_features(vocab_file='movie-review-HW2/aclImdb/imdb.vocab',
                     line = str(line)
                     line = line.lower()
                     line = re.sub('<[^<]+?>', '', line)
-                    line = line.strip('!"#$%&\'()*+,./:;<=>?@[\]^_`{|}~')
-                    initialized_row = pd.Series(
-                        data=[1, filename] + [1 for i in range(len(columns))])
-                    train_features_df.append(
-                        initialized_row, ignore_index=True)
-    return train_features_df
-    # for word in line.split():
+                    new_line = ''
+                    for i in line:
+                        if i not in '!"#$%&\'()*+,./:;<=>?@[\]^_`{|}~':
+                            new_line += i
+                    line = new_line
+                    row_dict = {k: 1 for k in columns}
+                    row_dict['labels'] = 1
+                    row_dict['filename'] = filename
+                    for word in line.split():
+                        try:
+                            row_dict[word] += 1
+                        except KeyError:
+                            pass
+                    return pd.DataFrame.from_dict(row_dict)
+                    '''
+                    we are having an issue with creating a dataframe from a
+                    dictionary when the dictionary values are all scalars
+                    '''
+
+    # return train_features_df
 
 
-make_train_features()
+print(make_train_features())
 
 
 def make_dict(vocab_file, train_file):
