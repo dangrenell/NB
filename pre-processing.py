@@ -19,3 +19,7 @@ def single_file(file_to_write, file_path):
                     line = re.sub('<[^<]+?>', '', line)
                     line = line.strip('!"#$%&\'()*+,./:;<=>?@[\]^_`{|}~')
                     outfile.write(line)
+
+
+single_file('train_neg.txt', train_neg_path)
+single_file('train_pos.txt', train_pos_path)

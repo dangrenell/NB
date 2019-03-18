@@ -3,45 +3,8 @@ import numpy as np
 from collections import Counter
 from random import randint
 import pickle
-#
-# class NB:
-#     def __init__(self):
-
-# def text_file_to_list(self, file_name):
-#     """Converts the file to a list of words"""
-#     with open(file_name) as f:
-#         words = f.read().split()
-#     return words
-
-# def relative_freq_dict(self, words):
-#     """
-#     Creates a dictionary/counter with words as keys and counts as values.
-#     Normalizes the counts. Values now represent relative frequencies.
-#     """
-#     counts = Counter(words)
-
-#     total = sum(counts.values())
-#     for key in counts:
-#         counts[key] /= total
-
-#     return counts
-
-# def sentence_prob(self, text, model):
-#     """Calculates the product of the probabilities of the words in an input string given a model."""
-#     sentence_words = text.split()
-#     prob = 1
-#     for word in sentence_words:
-#         if word in model:
-#             prob *= model[word]
-#         else:
-#             prob *= .00001
-#     return prob
-
-# def train(self, training_file, test_file, save_file):
-#     with open(training_file):
-#         probs = {}
-#         for i in training_file:
-#         probs[i]
+import os
+import glob
 
 
 def make_dict(vocab_file, train_file):
@@ -50,18 +13,54 @@ def make_dict(vocab_file, train_file):
         for row in file:
             row = row.strip('\n')
             vocab_dict[row] = 1
-    for word in train_file.split():
-        try:
-            vocab_dict[word] += 1
-        except KeyError:
-            pass
+    with open(train_file, errors='ignore') as file:
+        for line in file:
+            for word in line.split():
+                try:
+                    vocab_dict[word] += 1
+                except KeyError:
+                    pass
+    total_sum = sum(vocab_dict.values())
+    vocab_dict = {k: v / total_sum for k, v in vocab_dict.items()}
+    return vocab_dict
 
 
-# pickle.dump(vocab_dict, open( "vocab_file.pickle", "wb" ) )
+comedy_dict = make_dict('movie-review-HW2/aclImdb/imdb.vocab',
+                        'small_corpus/small_corpus_train_comedy.txt')
+action_dict = make_dict('movie-review-HW2/aclImdb/imdb.vocab',
+                        'small_corpus/small_corpus_train_action.txt')
 
+
+def fit(train_file_pos, train_file_neg, train_folder, vocab_file='movie-review-HW2/aclImdb/imdb.vocab'):
+    class1_count = len(glob.glob(os.path.join(train_folder + '/pos', '*.txt')))
+    class2_count = len(glob.glob(os.path.join(train_folder + '/neg', '*.txt')))
+    class1_prob = class1_count / (class1_count + class2_count)
+    class2_prob = class2_count / (class1_count + class2_count)
+    class_dict = {'pos': class1_prob, 'neg': class2_prob}
+    pos_dict = make_dict(vocab_file, train_file_pos)
+    neg_dict = make_dict(vocab_file, train_file_neg)
+    try:
+        os.makedirs('pickle_jar')
+    except FileExistsError:
+        pass
+    pickle.dump(class_dict, open("pickle_jar/class_prior_prob.pickle", "wb"))
+    pickle.dump(pos_dict, open("pickle_jar/pos_probs.pickle", "wb"))
+    pickle.dump(neg_dict, open("pickle_jar/neg_probs.pickle", "wb"))
+
+    '''
+    make dictionaries for each train file
+    calculate class probabilities
+    output as pickles (3)
+    '''
+
+
+fit('train_pos.txt', 'train_neg.txt', 'movie-review-HW2/aclImdb/train')
+#
+positive_probs_test = pickle.load(open("pickle_jar/pos_probs.pickle", "rb"))
+
+positive_probs_test['fun']
 
 # csv.DictReader()
-
 '''
 read vocabulary in as a dictionary with values set to 1
 for word in file:
