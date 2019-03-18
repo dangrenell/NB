@@ -76,6 +76,9 @@ positive_probs_test = pickle.load(open("pickle_jar/pos_probs.pickle", "rb"))
 
 positive_probs_test['fun']
 
-'''
-note: work in log space
-'''
+
+def predict():
+    '''
+    note: work in log space
+
+    '''
